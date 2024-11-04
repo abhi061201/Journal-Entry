@@ -1,4 +1,4 @@
-package com.journalEntry.journal.Entry;
+package com.journalEntry.journal.Entry.service;
 
 import com.journalEntry.journal.Entry.Entity.JournalEntity;
 import com.journalEntry.journal.Entry.repository.JournalRepository;
@@ -7,7 +7,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
-import javax.swing.text.html.Option;
 import java.util.List;
 import java.util.Optional;
 
