@@ -2,6 +2,7 @@ package com.journalEntry.journal.Entry.service;
 
 import com.journalEntry.journal.Entry.Entity.JournalEntity;
 import com.journalEntry.journal.Entry.repository.JournalRepository;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +26,7 @@ public class JournalService {
         }
     }
 
-    public ResponseEntity<JournalEntity> getEntityById(String id){
+    public ResponseEntity<JournalEntity> getEntityById(ObjectId id){
         try{
             Optional<JournalEntity> entity = journalRepository.findById(id);
             return entity.isPresent()?new ResponseEntity(entity.get(),HttpStatus.OK): new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -51,7 +52,7 @@ public class JournalService {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    public ResponseEntity<JournalEntity> deleteById(String id){
+    public ResponseEntity<JournalEntity> deleteById(ObjectId id){
         Optional<JournalEntity> entity = journalRepository.findById(id);
         if(entity.isPresent()){
             journalRepository.deleteById(id);
@@ -62,7 +63,7 @@ public class JournalService {
         }
 
     }
-    public ResponseEntity<JournalEntity> updateById(String id, JournalEntity entity){
+    public ResponseEntity<JournalEntity> updateById(ObjectId id, JournalEntity entity){
         Optional<JournalEntity> oldEntity = journalRepository.findById(id);
         if(oldEntity.isPresent()){
             oldEntity.get().setContent(entity.getContent());
@@ -74,4 +75,6 @@ public class JournalService {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
+
+
 }

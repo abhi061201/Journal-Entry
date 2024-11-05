@@ -2,6 +2,7 @@ package com.journalEntry.journal.Entry.controller;
 
 import com.journalEntry.journal.Entry.Entity.JournalEntity;
 import com.journalEntry.journal.Entry.service.JournalService;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -30,7 +31,7 @@ public class JournalController {
 
     }
     @GetMapping("/getEntity/id/{id}")
-    public ResponseEntity<JournalEntity> getEntityById(@PathVariable String id){
+    public ResponseEntity<JournalEntity> getEntityById(@PathVariable ObjectId id){
         return journalService.getEntityById(id);
     }
 
@@ -39,13 +40,13 @@ public class JournalController {
         return journalService.clear();
     }
     @DeleteMapping("/deleteEntity/id/{id}")
-    public ResponseEntity<JournalEntity> deleteEntityById(@PathVariable String id){
+    public ResponseEntity<JournalEntity> deleteEntityById(@PathVariable ObjectId id){
         return journalService.deleteById(id);
     }
 
 
     @PutMapping("/updateEntity/id/{id}")
-    public ResponseEntity<JournalEntity> updateEntityById(@PathVariable String id, @RequestBody JournalEntity entity){
+    public ResponseEntity<JournalEntity> updateEntityById(@PathVariable ObjectId id, @RequestBody JournalEntity entity){
         return journalService.updateById(id,entity);
     }
 }
