@@ -7,6 +7,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
 @Document("JournalEntity")
+@NoArgsConstructor
+@AllArgsConstructor
 public class JournalEntity {
     @Id
     private ObjectId id;

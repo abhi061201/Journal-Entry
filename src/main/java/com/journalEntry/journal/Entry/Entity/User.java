@@ -1,6 +1,7 @@
 package com.journalEntry.journal.Entry.Entity;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
@@ -12,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Data
+@NoArgsConstructor
 @Document(collection = "users")
 public class User {
 
