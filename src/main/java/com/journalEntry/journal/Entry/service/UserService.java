@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -38,6 +39,10 @@ public class UserService {
         return user;
     }
 
+//    public User addUserSecured(User user){
+//
+//    }
+
     public User findById(ObjectId id){
         return userRepo.findById(id).orElse(null);
     }
@@ -50,15 +55,23 @@ public class UserService {
         return user;
     }
 
+    @Transactional
     public ResponseEntity<?> addUserJournalEntity(String userName, JournalEntity entity){
-       User user = userRepo.findByUserName(userName);
-        if(user!= null){
-           JournalEntity journalEntity = journalRepository.save(entity);
-            user.getJournalEntityList().add(journalEntity);
-            userRepo.save(user);
-            return new ResponseEntity<>(HttpStatus.CREATED);
-        }
-        else return new ResponseEntity(HttpStatus.NO_CONTENT);
+       try
+       {
+           User user = userRepo.findByUserName(userName);
+           if(user!= null){
+               JournalEntity journalEntity = journalRepository.save(entity);
+               user.getJournalEntityList().add(journalEntity);
+               userRepo.save(user);
+               return new ResponseEntity<>(HttpStatus.CREATED);
+           }
+           else return new ResponseEntity(HttpStatus.NO_CONTENT);
+       }
+       catch(Exception e){
+           System.out.println("Api Exception"+e);
+           throw new RuntimeException("Something had gone wrong "+e);
+       }
     }
 
 
@@ -98,18 +111,8 @@ public class UserService {
 
     public ResponseEntity<?> updateUserJournalEntity(String userName,ObjectId id, JournalEntity newEntity){
         try{
-//            User user = userRepo.findByUserName(userName);
-//           List<JournalEntity> list= user.getJournalEntityList();
-//           for(JournalEntity entity : list){
-//               if(entity.getId().equals(id)){
-//                   entity.setTitle(newEntity.getTitle());
-//                   entity.setContent(newEntity.getContent());
-//                   journalRepository.save(entity);
-//               }
-//           }
-//           user.setJournalEntityList(list);
-//           userRepo.save(user);
-//           return new ResponseEntity<>(HttpStatus.CREATED);
+            //just need to update journal entry...the username journal entry will be updated automatically because it is just reference
+
             JournalEntity oldEntity = journalRepository.findById(id).orElse(null);
             if(oldEntity!=null){
                 oldEntity.setContent(newEntity.getContent());

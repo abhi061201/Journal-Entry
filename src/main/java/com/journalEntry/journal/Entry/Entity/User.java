@@ -31,4 +31,8 @@ public class User {
     //since we have JournalEntity already so no need to redundant data
     private List<JournalEntity> journalEntityList = new ArrayList<>();
 
+
+    //part of Spring Security Authorization
+    private List<String> role;
+
 }
