@@ -20,14 +20,12 @@ public class UserController {
         return userService.getAllUser();
     }
 
-    @PostMapping("/addUser")
-    public User addUser(@RequestBody User user){
-
-        return userService.addUser(user);
+    @PutMapping("/updateUser")
+    public ResponseEntity<?> updateUser(@RequestBody User user){
+        return userService.updateUser(user);
     }
-
-    @PutMapping("/updateUser/{userName}")
-    public ResponseEntity<?> updateUser(@PathVariable String userName,@RequestBody User user){
-        return userService.updateUser(user,userName);
+    @DeleteMapping("/deleteUser")
+    public ResponseEntity<?> deleteUser(){
+        return userService.deleteUser();
     }
 }

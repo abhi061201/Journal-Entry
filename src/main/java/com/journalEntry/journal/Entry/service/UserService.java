@@ -9,9 +9,15 @@ import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,7 +30,7 @@ public class UserService {
     @Autowired
     JournalRepository journalRepository;
 
-
+    private static final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     public List<User> getAllUser(){
         return userRepo.findAll();
@@ -39,9 +45,12 @@ public class UserService {
         return user;
     }
 
-//    public User addUserSecured(User user){
-//
-//    }
+    public User addUserSecured(User user){
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setRole(Arrays.asList("USER"));
+        userRepo.save(user);
+        return user;
+    }
 
     public User findById(ObjectId id){
         return userRepo.findById(id).orElse(null);
@@ -74,23 +83,37 @@ public class UserService {
        }
     }
 
-
     public List<JournalEntity> getUserJournalEntity(String userName){
 
         User user = userRepo.findByUserName(userName);
         return user.getJournalEntityList();
     }
 
-    public ResponseEntity<?> updateUser(User newUser, String userName){
+    public ResponseEntity<?> updateUser(User newUser){
+        Authentication authentication= SecurityContextHolder.getContext().getAuthentication();
+        String userName = authentication.getName();
+        System.out.println("JournalLogger" + userName+ " : " +authentication.getDetails());
         User user = userRepo.findByUserName(userName);
         if(user!=null){
             user.setUserName(newUser.getUserName());
-            user.setPassword(newUser.getPassword());
+            user.setPassword(passwordEncoder.encode(newUser.getPassword()));
             userRepo.save(user);
         }
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
+
+    public ResponseEntity<?> deleteUser(){
+       try {
+           Authentication authentication =SecurityContextHolder.getContext().getAuthentication();
+           String userName = authentication.getName();
+           userRepo.deleteByUserName(userName);
+           return new ResponseEntity<>(HttpStatus.OK);
+       }
+       catch(Exception e){
+           return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+       }
+    }
 
     public ResponseEntity<?> deleteUserJournalEntity(String userName, ObjectId id){
         try{
@@ -107,7 +130,6 @@ public class UserService {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
-
 
     public ResponseEntity<?> updateUserJournalEntity(String userName,ObjectId id, JournalEntity newEntity){
         try{
