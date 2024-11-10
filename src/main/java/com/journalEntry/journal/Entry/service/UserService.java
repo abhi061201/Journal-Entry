@@ -102,7 +102,6 @@ public class UserService {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-
     public ResponseEntity<?> deleteUser(){
        try {
            Authentication authentication =SecurityContextHolder.getContext().getAuthentication();
@@ -147,4 +146,6 @@ public class UserService {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
+
+    // temp code for rebase practice
 }
