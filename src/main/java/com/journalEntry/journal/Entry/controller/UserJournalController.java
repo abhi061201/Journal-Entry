@@ -17,14 +17,14 @@ public class UserJournalController {
     @Autowired
     private UserService userService;
 
-    @GetMapping("/getAll/{userName}")
-    public List<JournalEntity> getAll(@PathVariable String userName){
-        return userService.getUserJournalEntity(userName);
+    @GetMapping("/getAll")
+    public ResponseEntity<?> getAll(){
+        return userService.getUserJournalEntity();
     }
 
-    @PostMapping("/addEntity/{userName}")
-    public ResponseEntity<?> addEntity(@PathVariable String userName, @RequestBody JournalEntity entity){
-            return userService.addUserJournalEntity(userName, entity);
+    @PostMapping("/addEntity")
+    public ResponseEntity<?> addEntity( @RequestBody JournalEntity entity){
+            return userService.addUserJournalEntity( entity);
     }
 
     @DeleteMapping("/deleteEntity/{userName}/{id}")
@@ -36,7 +36,12 @@ public class UserJournalController {
         return userService.updateUserJournalEntity(userName, id, entity);
     }
 
-
-
-
+    @GetMapping("/getEntity/{id}")
+    public ResponseEntity<?> getUserJournalEntityById(@PathVariable ObjectId id){
+        return userService.getUserJournalEntityById(id);
+    }
+    @DeleteMapping("/deleteEntity/{id}")
+    public ResponseEntity<?> deleteUserJournalEntityById(@PathVariable ObjectId id){
+        return userService.deleteUserJournalEntityById(id);
+    }
 }

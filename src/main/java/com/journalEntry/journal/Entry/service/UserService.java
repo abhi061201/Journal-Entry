@@ -1,7 +1,9 @@
 package com.journalEntry.journal.Entry.service;
 
+import ch.qos.logback.core.encoder.EchoEncoder;
 import com.journalEntry.journal.Entry.Entity.JournalEntity;
 import com.journalEntry.journal.Entry.Entity.User;
+import com.journalEntry.journal.Entry.config.SpringSecurity;
 import com.journalEntry.journal.Entry.repository.JournalRepository;
 import com.journalEntry.journal.Entry.repository.UserRepo;
 import org.apache.coyote.Response;
@@ -20,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Component
 public class UserService {
@@ -47,7 +50,14 @@ public class UserService {
 
     public User addUserSecured(User user){
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setRole(Arrays.asList("USER"));
+//        user.setRole(Arrays.asList("USER"));
+        userRepo.save(user);
+        return user;
+    }
+
+    public User addAdmin(User user){
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setRole(Arrays.asList("USER", "admin"));
         userRepo.save(user);
         return user;
     }
@@ -65,10 +75,11 @@ public class UserService {
     }
 
     @Transactional
-    public ResponseEntity<?> addUserJournalEntity(String userName, JournalEntity entity){
+    public ResponseEntity<?> addUserJournalEntity( JournalEntity entity){
        try
        {
-           User user = userRepo.findByUserName(userName);
+           Authentication authentication= SecurityContextHolder.getContext().getAuthentication();
+           User user = userRepo.findByUserName(authentication.getName());
            if(user!= null){
                JournalEntity journalEntity = journalRepository.save(entity);
                user.getJournalEntityList().add(journalEntity);
@@ -83,10 +94,51 @@ public class UserService {
        }
     }
 
-    public List<JournalEntity> getUserJournalEntity(String userName){
+    public ResponseEntity<?> getUserJournalEntity(){
+       try{
+           Authentication authentication= SecurityContextHolder.getContext().getAuthentication();
+           // if above line executed that means we got authenticated user
+           User user = userRepo.findByUserName(authentication.getName());
+           return new ResponseEntity<>(user.getJournalEntityList(), HttpStatus.OK);
+       }
+       catch (Exception e){
+           return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+       }
+    }
 
-        User user = userRepo.findByUserName(userName);
-        return user.getJournalEntityList();
+    public ResponseEntity<?> getUserJournalEntityById(ObjectId id){
+        try{
+            Authentication authentication= SecurityContextHolder.getContext().getAuthentication();
+            String userName = authentication.getName();
+            User user = userRepo.findByUserName(userName);
+            List<JournalEntity> list = user.getJournalEntityList().stream().filter(x-> x.getId().equals(id)).collect(Collectors.toList());
+
+            if(!list.isEmpty()){
+                return new ResponseEntity<>(list.get(0), HttpStatus.ACCEPTED);
+            }
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+        catch (Exception e){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
+    }
+
+    public ResponseEntity<?> deleteUserJournalEntityById(ObjectId id){
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String userName = authentication.getName();
+            User user = findUserByUserName(userName);
+           List<JournalEntity> list = user.getJournalEntityList().stream().filter(x-> x.getId().equals(id)).collect(Collectors.toList());
+           if(!list.isEmpty()){
+               journalRepository.deleteById(id);
+               return new ResponseEntity<>(HttpStatus.OK);
+           }
+           return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+        catch (Exception e){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
     }
 
     public ResponseEntity<?> updateUser(User newUser){
@@ -146,6 +198,5 @@ public class UserService {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
-
     // temp code for rebase practice
 }
